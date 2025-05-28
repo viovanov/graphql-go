@@ -423,12 +423,14 @@ func (b *execBuilder) makeExec(t ast.Type, resolverType reflect.Type) (Resolvabl
 func makeScalarExec(t *ast.ScalarTypeDefinition, resolverType reflect.Type) (Resolvable, error) {
 	implementsType := false
 	switch r := reflect.New(resolverType).Interface().(type) {
-	case *int32:
-		implementsType = t.Name == "Int"
+	case *int, *int32, *int64:
+		// Accept standard int, int32, and int64 for GraphQL Int and ID scalars.
+		implementsType = t.Name == "Int" || t.Name == "ID"
 	case *float64:
 		implementsType = t.Name == "Float"
 	case *string:
-		implementsType = t.Name == "String"
+		// Strings are valid for both String and ID scalars.
+		implementsType = t.Name == "String" || t.Name == "ID"
 	case *bool:
 		implementsType = t.Name == "Boolean"
 	case decode.Unmarshaler:
