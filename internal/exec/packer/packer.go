@@ -335,6 +335,29 @@ func unmarshalInput(typ reflect.Type, input interface{}) (interface{}, error) {
 	}
 
 	switch typ.Kind() {
+	case reflect.Int, reflect.Int64:
+		switch input := input.(type) {
+		case int:
+			if typ.Kind() == reflect.Int64 {
+				return int64(input), nil
+			}
+			return input, nil
+		case int32:
+			if typ.Kind() == reflect.Int64 {
+				return int64(input), nil
+			}
+			return int(input), nil
+		case float64:
+			if input != math.Trunc(input) {
+				return nil, fmt.Errorf("not an integer")
+			}
+			iv := int64(input)
+			if typ.Kind() == reflect.Int64 {
+				return iv, nil
+			}
+			return int(iv), nil
+		}
+
 	case reflect.Int32:
 		switch input := input.(type) {
 		case int:
